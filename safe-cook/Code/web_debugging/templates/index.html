@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<!-- Socket IO
+  ================================================== -->
+  <script type="text/javascript"
+          src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js">
+  </script>
+
+  <!-- Bootstrap CSS
+  ================================================== -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+  </script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+  </script>
+  <!-- Custom styles
+  ================================================== -->
+  <link href="https://fonts.googleapis.com/css?family=Karla&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f1f2f3;
+    }
+
+    .image{
+      float: left;
+    }
+
+    .container {
+      width: 1024px;
+    }
+    
+    .card {
+      height: 800px;
+      float: left;
+    }
+
+    .card-scroller {
+      overflow: scroll;
+      height: 800px;
+    }
+
+    h5 {
+      border-bottom: solid 1px #d2d2d2;
+    }
+
+    ::-webkit-scrollbar {
+      -webkit-appearance: none;
+      width: 7px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background-color: rgba(0, 0, 0, .5);
+      -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="container" width="100%">
+    <div>
+      <h1>RPI Video Feed</h1>
+    </div>
+
+    <div class="card-deck" width="100%">
+
+      <div class="card" width="20%">
+        <div class="card-body">
+          <h5 class="card-title">Output</h5>
+          <div class="card-scroller">
+            <p id="streamer-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <img class="image" id="streamer-image" src="" width="700px" height="100%">
+      </div>
+
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function(event) {
+    const image_elem = document.getElementById("streamer-image");
+    const text_elem = document.getElementById("streamer-text");
+
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/web', {
+      reconnection: false
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected');
+    });
+
+    socket.on('connect_error', (error) => {
+      console.log('Connect error! ' + error);
+    });
+
+    socket.on('connect_timeout', (error) => {
+      console.log('Connect timeout! ' + error);
+    });
+
+    socket.on('error', (error) => {
+      console.log('Error! ' + error);
+    });
+
+    // Update image and text data based on incoming data messages
+    socket.on('server2web', (msg) => {
+      image_elem.src = msg.image;
+      text_elem.innerHTML = msg.text;
+    });
+  });
+</script>
